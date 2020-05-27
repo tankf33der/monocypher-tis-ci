@@ -14,6 +14,7 @@
             (link (cons F M)) ) ) ) )
 (out "tis.config"
    (prinl "// Auto genetated file")
+   (prinl "[")
    (for (L *L L (cdr L))
       (let (F (caar L)  M (cdar L))
          (prinl "{")
@@ -21,7 +22,6 @@
          (prinl "\"files\":\"all\",")
          (prinl "\"main\":\"" F "\"")
          (prin "}")
-         (if (cdr L)
-            (prinl ",")
-            (prinl) ) ) ) )
+         (and (cdr L) (prinl ",")) ) )
+   (prinl "]") )
 (bye)
