@@ -2,19 +2,24 @@
 
 (setq
    *M
-   '("x86_16" "x86_huge" "x86_32" "x86_64")
+   (quote
+      "x86_16" "x86_huge" "x86_32" "x86_64" )
    *F
-   '("p1305" "blake2b") )
-
-
-(out "tis.json"
-   (for F *F
-      (for M *M
+   (quote
+      "p1305" "blake2b" )
+   *L
+   (make
+      (for F *F
+         (for M *M
+            (link (cons F M)) ) ) ) )
+(out "tis.config"
+   (prinl "// Auto genetated file")
+   (for (L *L L (cdr L))
+      (let (F (caar L)  M (cdar L))
          (prinl "{")
-         (println F M)
+         (prinl "\"name\":" (pack "\"" F " - " M "\"") ",")
+         (prinl "\"files\":\"all\",")
+         (prinl "\"main\":\"" F "\"")
          (prinl "}")
-      )
-   )
-)
-
+         (and (cdr L) (prinl ",")) ) ) )
 (bye)
