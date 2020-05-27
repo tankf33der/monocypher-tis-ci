@@ -1,5 +1,4 @@
-// PicoLisp tis.config file generator
-
+# PicoLisp tis.config file generator
 (setq
    *M
    (quote
@@ -25,7 +24,7 @@
    (for (L *L L (cdr L))
       (let (F (caar L)  M (cdar L))
          (prinl "{")
-         (prinl "\"name\":" (pack "\"" F " - " M "\"") ",")
+         (prinl "\"name\":\"" F " - " M "\",")
          (prinl "\"files\":\"all\",")
          (prinl "\"machdep\":\"" M "\",")
          (prinl "\"main\":\"" F "\"")
