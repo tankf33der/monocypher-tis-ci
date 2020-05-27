@@ -20,6 +20,7 @@
          (prinl "{")
          (prinl "\"name\":" (pack "\"" F " - " M "\"") ",")
          (prinl "\"files\":\"all\",")
+         (prinl "\"machdep\":\"" M "\",")
          (prinl "\"main\":\"" F "\"")
          (prin "}")
          (and (cdr L) (prinl ",")) ) )
