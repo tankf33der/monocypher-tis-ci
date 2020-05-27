@@ -3,10 +3,14 @@
 (setq
    *M
    (quote
-      "x86_16" "x86_huge" "x86_32" "x86_64" )
+      sparc_64 sparc_32
+      armeb_eabi arm_eabi aarch64 aarch64eb
+      rv64ifdq rv32ifdq
+      mips_o32 mips_n32 mips_64 mipsel_64
+      x86_16 x86_16_huge x86_32 x86_64 )
    *F
    (quote
-      "p1305" "blake2b" )
+      p1305 blake2b )
    *L
    (make
       (for F *F
