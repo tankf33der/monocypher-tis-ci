@@ -35,7 +35,7 @@
       )
    *F
    (quote
-   hidden hchacha
+   chacha xchacha
         )
    *L
    (make
