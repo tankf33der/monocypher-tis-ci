@@ -35,8 +35,7 @@
       )
    *F
    (quote
-      argon key_exchange
-
+sign_check from_eddsa
         )
    *L
    (make
