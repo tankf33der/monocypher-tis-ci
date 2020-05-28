@@ -35,7 +35,7 @@
       )
    *F
    (quote
-   inverse sha512
+   hmac sign_check_ed25519
         )
    *L
    (make
