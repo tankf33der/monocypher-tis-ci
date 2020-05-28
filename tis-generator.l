@@ -35,7 +35,7 @@
       )
    *F
    (quote
-   x25519 dirty
+   inverse sha512
         )
    *L
    (make
