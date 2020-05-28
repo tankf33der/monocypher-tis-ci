@@ -1,4 +1,6 @@
 # PicoLisp tis.config file generator
+
+#{
 (setq
    *M
    (quote
@@ -18,6 +20,22 @@
       (for F *F
          (for M *M
             (link (cons F M)) ) ) ) )
+}#
+(setq
+   *M
+   (quote
+      sparc_164
+      )
+   *F
+   (quote
+      p1305  )
+   *L
+   (make
+      (for F *F
+         (for M *M
+            (link (cons F M)) ) ) ) )
+
+
 (out "tis.config"
    (prinl "// Auto genetated file")
    (prinl "[")
