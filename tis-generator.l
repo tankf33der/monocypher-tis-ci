@@ -35,7 +35,7 @@
       )
    *F
    (quote
-   ietf_chacha chacha_ctr
+   xchacha_ctr ietf_chacha_ctr
         )
    *L
    (make
