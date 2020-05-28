@@ -15,8 +15,8 @@
       x25519 dirty inverse sha512 hmac sign_check_ed25519 )
    *L
    (make
-      (for F *F
-         (for M *M
+      (for F (head 1 *F)
+         (for M (head 1 *M)
             (link (cons F M)) ) ) ) )
 (de prn (F M)
    (prinl "{")
