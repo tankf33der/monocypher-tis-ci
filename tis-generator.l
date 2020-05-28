@@ -35,7 +35,7 @@
       )
    *F
    (quote
-sign_check from_eddsa
+   hidden hchacha
         )
    *L
    (make
