@@ -33,7 +33,8 @@
       )
    *F
    (quote
-      p1305  )
+   blake2b verify
+        )
    *L
    (make
       (for F *F
