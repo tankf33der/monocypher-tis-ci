@@ -24,7 +24,7 @@
 (setq
    *M
    (quote
-      sparc_164
+      sparc_64
       )
    *F
    (quote
