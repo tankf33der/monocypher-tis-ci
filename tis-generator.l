@@ -35,7 +35,8 @@
       )
    *F
    (quote
-   wipe lock_unlock
+      argon key_exchange
+
         )
    *L
    (make
