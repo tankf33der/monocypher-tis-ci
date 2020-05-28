@@ -1,4 +1,15 @@
 # PicoLisp tis.config file generator
+(de prn (F M)
+   (prinl "{")
+   (printsp "name" ': (pack F " - " M))
+   (prinl ",")
+   (printsp "files" ': "all")
+   (prinl ",")
+   (printsp "machdep" ': (text M))
+   (prinl ",")
+   (printsp "main" ': (text F))
+   (prinl)
+   (prinl "}") )
 (setq
    *M
    (quote
@@ -15,20 +26,9 @@
       x25519 dirty inverse sha512 hmac sign_check_ed25519 )
    *L
    (make
-      (for F (head 1 *F)
-         (for M (head 1 *M)
+      (for F *F
+         (for M *M
             (link (cons F M)) ) ) ) )
-(de prn (F M)
-   (prinl "{")
-   (printsp "name" ': (pack F " - " M))
-   (prinl ",")
-   (printsp "files" ': "all")
-   (prinl ",")
-   (printsp "machdep" ': (text M))
-   (prinl ",")
-   (printsp "main" ': (text F))
-   (prinl)
-   (prinl "}") )
 (out "tis.config"
    (prinl "// Auto genetated file")
    (prinl "[")
