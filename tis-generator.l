@@ -13,7 +13,7 @@
 (setq
    *M
    (quote
-      #sparc_64 sparc_32
+      sparc_64 sparc_32
       x86_32 x86_64
       #armeb_eabi arm_eabi aarch64 aarch64eb
       #rv64ifdq rv32ifdq
