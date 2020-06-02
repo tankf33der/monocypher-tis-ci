@@ -12,36 +12,42 @@ typedef uint8_t u8;
 void p1305(void) {
     ARRAY(mac, 16);
     ARRAY(key, 32);
-    ARRAY(in,  44);
-    crypto_poly1305(mac, in, 44, key);
+    ARRAY(in,  64);
+    crypto_poly1305(mac, in,  0, key);
+    crypto_poly1305(mac, in, 64, key);
 }
 
 void blake2b(void) {
     ARRAY(hash, 64);
     ARRAY(key,  64);
     ARRAY(in,  129);
+    crypto_blake2b_general(hash, 64, key, 64, in,   0);
     crypto_blake2b_general(hash, 64, key, 64, in, 129);
 }
 
 void verify(void) {
-    ARRAY(a, 64);
-    ARRAY(b, 64);
+    ARRAY(a, 65);
+    ARRAY(b, 65);
     crypto_verify16(a, b);
     crypto_verify32(a, b);
     crypto_verify64(a, b);
 }
 
 void wipe(void) {
-    ARRAY(a, 64);
-    crypto_wipe(a, 64);
+    ARRAY(a, 123);
+    crypto_wipe(a,   0);
+    crypto_wipe(a, 123);
 }
 
 void lock_unlock(void) {
     ARRAY(mac,   16);
     ARRAY(enc,   64);
     ARRAY(txt,   64);
-    ARRAY(key,   32);
-    ARRAY(nonce, 24);
+    ARRAY(key,   33);
+    ARRAY(nonce, 25);
+    crypto_lock  (mac, enc, key, nonce, txt, 0);
+    crypto_unlock(txt, key, nonce, mac, enc, 0);
+
     crypto_lock  (mac, enc, key, nonce, txt, 64);
     crypto_unlock(txt, key, nonce, mac, enc, 64);
 }
@@ -59,6 +65,7 @@ void argon(void) {
 void key_exchange(void) {
     ARRAY(shd, 32);
     ARRAY(key, 32);
+    // crypto_key_exchange_public_key is crypto_x25519_public_key
     crypto_key_exchange(shd, key, key);
 }
 
@@ -103,6 +110,7 @@ void chacha(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
+    crypto_chacha20(out, in,  0, key, nonce);
     crypto_chacha20(out, in, 32, key, nonce);
 }
 
@@ -111,6 +119,7 @@ void xchacha(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
+    crypto_xchacha20(out, in,  0, key, nonce);
     crypto_xchacha20(out, in, 32, key, nonce);
 }
 
@@ -119,6 +128,7 @@ void ietf_chacha(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
+    crypto_ietf_chacha20(out, in,  0, key, nonce);
     crypto_ietf_chacha20(out, in, 32, key, nonce);
 }
 
@@ -127,7 +137,8 @@ void chacha_ctr(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    crypto_chacha20_ctr(out, in, 32, key, nonce, 7000);
+    crypto_chacha20_ctr(out, in,  0, key, nonce, 777);
+    crypto_chacha20_ctr(out, in, 32, key, nonce, 777);
 }
 
 void xchacha_ctr(void) {
@@ -135,7 +146,8 @@ void xchacha_ctr(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
-    crypto_xchacha20_ctr(out, in, 32, key, nonce, 7000);
+    crypto_xchacha20_ctr(out, in,  0, key, nonce, 777);
+    crypto_xchacha20_ctr(out, in, 32, key, nonce, 777);
 }
 
 void ietf_chacha_ctr(void) {
@@ -143,7 +155,8 @@ void ietf_chacha_ctr(void) {
     ARRAY(in,    32);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
-    crypto_ietf_chacha20_ctr(out, in, 32, key, nonce, 7000);
+    crypto_ietf_chacha20_ctr(out, in,  0, key, nonce, 777);
+    crypto_ietf_chacha20_ctr(out, in, 32, key, nonce, 777);
 }
 
 void x25519(void) {
@@ -171,15 +184,17 @@ void inverse(void) {
 }
 
 void sha512(void) {
-    ARRAY(hash, 64);
-    ARRAY(in  , 64);
-    crypto_sha512(hash, in, 64);
+    ARRAY(hash,  64);
+    ARRAY(in  , 128);
+    crypto_sha512(hash, in,   0);
+    crypto_sha512(hash, in, 128);
 }
 
 void hmac(void) {
     ARRAY(hash, 64);
     ARRAY(key , 64);
     ARRAY(in  , 64);
+    crypto_hmac_sha512(hash, key, 64, in,  0);
     crypto_hmac_sha512(hash, key, 64, in, 64);
 }
 
@@ -194,28 +209,28 @@ void sign_check_ed25519(void) {
 }
 
 int main(void) {
-    // p1305();
-    // blake2b();
-    // verify();
-    // wipe();
-    // lock_unlock();
+    p1305();
+    blake2b();
+    verify();
+    wipe();
+    lock_unlock();
     argon();
-    // key_exchange();
-    // sign_check();
-    // from_eddsa();
-    // hidden();
-    // hchacha();
-    // chacha();
-    // xchacha();
-    // ietf_chacha();
-    // chacha_ctr();
-    // xchacha_ctr();
-    // ietf_chacha_ctr();
-    // x25519();
-    // dirty();
-    // inverse();
-    // sha512();
-    // hmac();
-    // sign_check_ed25519();
+    key_exchange();
+    sign_check();
+    from_eddsa();
+    hidden();
+    hchacha();
+    chacha();
+    xchacha();
+    ietf_chacha();
+    chacha_ctr();
+    xchacha_ctr();
+    ietf_chacha_ctr();
+    x25519();
+    dirty();
+    inverse();
+    sha512();
+    hmac();
+    sign_check_ed25519();
     return 0;
 }
