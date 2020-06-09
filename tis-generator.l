@@ -15,13 +15,13 @@
    (quote
       sparc_64 sparc_32
       x86_32 x86_64
-      #armeb_eabi arm_eabi aarch64 aarch64eb
-      #rv64ifdq rv32ifdq
-      #mips_o32 mips_n32 mips_64 mipsel_64
+      armeb_eabi arm_eabi aarch64 aarch64eb
+      rv64ifdq rv32ifdq
+      mips_o32 mips_n32 mips_64 mipsel_64
    )
    *F
    (quote
-      sign_check
+      blake2b
 
       # p1305 blake2b verify wipe lock_unlock argon key_exchange
       # sign_check from_eddsa hidden hchacha chacha xchacha
