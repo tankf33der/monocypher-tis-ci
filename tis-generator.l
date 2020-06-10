@@ -7,6 +7,10 @@
    (prinl ",")
    (printsp "machdep" ': (text M))
    (prinl ",")
+   (printsp "raw_options" ':)
+   (prin "{ ")
+   (printsp "-no-results" ': "true")
+   (prinl "} ,")
    (printsp "main" ': (text F))
    (prinl)
    (prinl "}") )
@@ -21,7 +25,7 @@
    )
    *F
    (quote
-      blake2b
+      sign_check
 
       # p1305 blake2b verify wipe lock_unlock argon key_exchange
       # sign_check from_eddsa hidden hchacha chacha xchacha
