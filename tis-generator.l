@@ -19,18 +19,17 @@
    (quote
       sparc_64 sparc_32
       x86_32 x86_64
+      x86_16 x86_16_huge
       armeb_eabi arm_eabi aarch64 aarch64eb
       rv64ifdq rv32ifdq
       mips_o32 mips_n32 mips_64 mipsel_64
    )
    *F
    (quote
-      sign_check
-
-      # p1305 blake2b verify wipe lock_unlock argon key_exchange
-      # sign_check from_eddsa hidden hchacha chacha xchacha
-      # ietf_chacha chacha_ctr xchacha_ctr ietf_chacha_ctr
-      # x25519 dirty inverse sha512 hmac sign_check_ed25519
+      p1305 blake2b verify wipe lock_unlock argon key_exchange
+      sign_check from_eddsa hidden hchacha chacha xchacha
+      ietf_chacha chacha_ctr xchacha_ctr ietf_chacha_ctr
+      x25519 dirty inverse sha512 hmac sign_check_ed25519
    )
    *L
    (make
