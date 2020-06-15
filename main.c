@@ -13,9 +13,8 @@ void p1305(void) {
     ARRAY(mac, 16);
     ARRAY(key, 32);
     ARRAY(in,  64);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_poly1305(mac, in, i, key);
-    }
 }
 
 void blake2b(void) {
@@ -29,9 +28,8 @@ void blake2b(void) {
             for(size_t i = 0; i < 64; i++)
                 crypto_blake2b_general(hash, h, key, k, in, i);
 */
-    for(size_t k = 0; k <= 64; k++)
-        for(size_t i = 0; i < 64; i++)
-            crypto_blake2b_general(hash, 64, key, k, in, i);
+    for(size_t i = 0; i < 64; i++)
+        crypto_blake2b_general(hash, 64, key, 64, in, i);
 }
 
 void verify(void) {
@@ -44,9 +42,8 @@ void verify(void) {
 
 void wipe(void) {
     ARRAY(a, 64);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_wipe(a, i);
-    }
 }
 
 void lock_unlock(void) {
@@ -119,9 +116,8 @@ void chacha(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_chacha20(out, in, i, key, nonce);
-    }
 }
 
 void xchacha(void) {
@@ -129,9 +125,8 @@ void xchacha(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_xchacha20(out, in, i, key, nonce);
-    }
 }
 
 void ietf_chacha(void) {
@@ -139,9 +134,8 @@ void ietf_chacha(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_ietf_chacha20(out, in, i, key, nonce);
-    }
 }
 
 void chacha_ctr(void) {
@@ -149,9 +143,8 @@ void chacha_ctr(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_chacha20_ctr(out, in, i, key, nonce, 777);
-    }
 }
 
 void xchacha_ctr(void) {
@@ -159,9 +152,8 @@ void xchacha_ctr(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_xchacha20_ctr(out, in, i, key, nonce, 777);
-    }
 }
 
 void ietf_chacha_ctr(void) {
@@ -169,9 +161,8 @@ void ietf_chacha_ctr(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_ietf_chacha20_ctr(out, in, i, key, nonce, 777);
-    }
 }
 
 void x25519(void) {
@@ -201,18 +192,16 @@ void inverse(void) {
 void sha512(void) {
     ARRAY(hash,  64);
     ARRAY(in  , 128);
-    for(size_t i = 0; i < 128; i++) {
+    for(size_t i = 0; i < 128; i++)
         crypto_sha512(hash, in, i);
-    }
 }
 
 void hmac(void) {
     ARRAY(hash, 64);
     ARRAY(key , 64);
     ARRAY(in  , 64);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 64; i++)
         crypto_hmac_sha512(hash, key, 64, in, i);
-    }
 }
 
 void sign_check_ed25519(void) {
