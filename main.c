@@ -12,37 +12,35 @@ typedef uint8_t u8;
 void p1305(void) {
     ARRAY(mac, 16);
     ARRAY(key, 32);
-    ARRAY(in,  65);
-    for(size_t i = 0; i < 65; i++) {
+    ARRAY(in,  64);
+    for(size_t i = 0; i < 64; i++) {
         crypto_poly1305(mac, in, i, key);
     }
-    //crypto_poly1305(mac, in,  0, key);
-    //crypto_poly1305(mac, in, 64, key);
 }
 
 void blake2b(void) {
     ARRAY(hash, 64);
     ARRAY(key,  64);
-    ARRAY(in,   65);
-    for(size_t i = 0; i < 65; i++) {
-        crypto_blake2b_general(hash, 64, key, 64, in, i);
-    }
-    //crypto_blake2b_general(hash, 64, key, 64, in,   0);
-    //crypto_blake2b_general(hash, 64, key, 64, in, 129);
+    ARRAY(in,   64);
+    for(size_t h = 1; h <= 64; h++)
+        for(size_t k = 0; k <= 64; k++)
+            for(size_t i = 0; i < 64; i++)
+                crypto_blake2b_general(hash, h, key, k, in, i);
 }
 
 void verify(void) {
-    ARRAY(a, 65);
-    ARRAY(b, 65);
+    ARRAY(a, 64);
+    ARRAY(b, 64);
     crypto_verify16(a, b);
     crypto_verify32(a, b);
     crypto_verify64(a, b);
 }
 
 void wipe(void) {
-    ARRAY(a, 123);
-    crypto_wipe(a,   0);
-    crypto_wipe(a, 123);
+    ARRAY(a, 64);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_wipe(a, i);
+    }
 }
 
 void lock_unlock(void) {
@@ -51,11 +49,10 @@ void lock_unlock(void) {
     ARRAY(txt,   64);
     ARRAY(key,   33);
     ARRAY(nonce, 25);
-    crypto_lock  (mac, enc, key, nonce, txt, 0);
-    crypto_unlock(txt, key, nonce, mac, enc, 0);
-
-    crypto_lock  (mac, enc, key, nonce, txt, 64);
-    crypto_unlock(txt, key, nonce, mac, enc, 64);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_lock  (mac, enc, key, nonce, txt, i);
+        crypto_unlock(txt, key, nonce, mac, enc, i);
+    }
 }
 
 void argon(void) {
@@ -112,57 +109,63 @@ void hchacha(void) {
 }
 
 void chacha(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    crypto_chacha20(out, in,  0, key, nonce);
-    crypto_chacha20(out, in, 32, key, nonce);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_chacha20(out, in, i, key, nonce);
+    }
 }
 
 void xchacha(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
-    crypto_xchacha20(out, in,  0, key, nonce);
-    crypto_xchacha20(out, in, 32, key, nonce);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_xchacha20(out, in, i, key, nonce);
+    }
 }
 
 void ietf_chacha(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
-    crypto_ietf_chacha20(out, in,  0, key, nonce);
-    crypto_ietf_chacha20(out, in, 32, key, nonce);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_ietf_chacha20(out, in, i, key, nonce);
+    }
 }
 
 void chacha_ctr(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    crypto_chacha20_ctr(out, in,  0, key, nonce, 777);
-    crypto_chacha20_ctr(out, in, 32, key, nonce, 777);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_chacha20_ctr(out, in, i, key, nonce, 777);
+    }
 }
 
 void xchacha_ctr(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 24);
-    crypto_xchacha20_ctr(out, in,  0, key, nonce, 777);
-    crypto_xchacha20_ctr(out, in, 32, key, nonce, 777);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_xchacha20_ctr(out, in, i, key, nonce, 777);
+    }
 }
 
 void ietf_chacha_ctr(void) {
-    ARRAY(out,   32);
-    ARRAY(in,    32);
+    ARRAY(out,   64);
+    ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 12);
-    crypto_ietf_chacha20_ctr(out, in,  0, key, nonce, 777);
-    crypto_ietf_chacha20_ctr(out, in, 32, key, nonce, 777);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_ietf_chacha20_ctr(out, in, i, key, nonce, 777);
+    }
 }
 
 void x25519(void) {
@@ -191,20 +194,19 @@ void inverse(void) {
 
 void sha512(void) {
     ARRAY(hash,  64);
-    ARRAY(in  ,  65);
-    for(size_t i = 0; i < 65; i++) {
+    ARRAY(in  , 128);
+    for(size_t i = 0; i < 128; i++) {
         crypto_sha512(hash, in, i);
     }
-    //crypto_sha512(hash, in,   0);
-    //crypto_sha512(hash, in, 128);
 }
 
 void hmac(void) {
     ARRAY(hash, 64);
     ARRAY(key , 64);
     ARRAY(in  , 64);
-    crypto_hmac_sha512(hash, key, 64, in,  0);
-    crypto_hmac_sha512(hash, key, 64, in, 64);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_hmac_sha512(hash, key, 64, in, i);
+    }
 }
 
 void sign_check_ed25519(void) {
