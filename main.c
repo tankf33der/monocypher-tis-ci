@@ -61,7 +61,7 @@ void argon(void) {
     ARRAY(key,  64);
     ARRAY(slt,  64);
     ARRAY(ad,   64);
-    crypto_argon2i_general(hash, 64, wrk, 32, 3, pwd, 64, slt, 64, key, 64, ad, 64);
+    crypto_argon2i_general(hash, 64, wrk, 16, 3, pwd, 64, slt, 64, key, 64, ad, 64);
 }
 
 void key_exchange(void) {
