@@ -56,12 +56,12 @@ void lock_unlock(void) {
 
 void argon(void) {
     ARRAY(hash, 128);
-    ARRAY(wrk,  131072); // 16 * 1024
+    ARRAY(wrk,  65536); // 64 * 1024
     ARRAY(pwd,  128);
     ARRAY(key,  128);
     ARRAY(slt,  128);
     ARRAY(ad,   128);
-    crypto_argon2i_general(hash, 128, wrk, 128, 6, pwd, 128, slt, 128, key, 128, ad, 128);
+    crypto_argon2i_general(hash, 128, wrk, 64, 6, pwd, 128, slt, 128, key, 128, ad, 128);
 }
 
 void key_exchange(void) {
