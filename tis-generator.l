@@ -28,11 +28,10 @@
    )
    *F
    (quote
-      argon
-      # p1305 blake2b verify wipe lock_unlock argon key_exchange
-      # sign_check from_eddsa hidden hchacha chacha xchacha
-      # ietf_chacha chacha_ctr xchacha_ctr ietf_chacha_ctr
-      # x25519 dirty inverse sha512 hmac sign_check_ed25519
+      p1305 blake2b verify wipe lock_unlock argon key_exchange
+      sign_check from_eddsa hidden hchacha chacha xchacha
+      ietf_chacha chacha_ctr xchacha_ctr ietf_chacha_ctr
+      x25519 dirty inverse sha512 hmac sign_check_ed25519
    )
    *L
    (make
