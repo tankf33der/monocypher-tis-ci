@@ -56,7 +56,7 @@ void lock_unlock(void) {
 
 void argon(void) {
     ARRAY(hash, 16);
-    ARRAY(wrk,  16384); // 16 * 1024
+    ARRAY(wrk,  17384); // 16 * 1024
     ARRAY(pwd,  16);
     ARRAY(key,  16);
     ARRAY(slt,  16);
@@ -167,7 +167,9 @@ void x25519(void) {
     ARRAY(shr, 32);
     key[0] = 0;
     crypto_x25519_public_key(pub, key);
-    crypto_x25519(shr, key, pub);
+    for(size_t i = 0; i < 64; i++) {
+        crypto_x25519(shr, key, pub);
+    }
 }
 
 void dirty(void) {
