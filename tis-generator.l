@@ -17,7 +17,7 @@
 (setq
    *M
    (quote
-      x86_16
+      sparc_64
       # sparc_64 sparc_32
       # x86_32 x86_64
       # x86_16 x86_16_huge
@@ -29,7 +29,7 @@
    )
    *F
    (quote
-      argon
+      x25519
       # p1305 blake2b verify wipe lock_unlock argon key_exchange
       # sign_check from_eddsa hidden hchacha chacha xchacha
       # ietf_chacha chacha_ctr xchacha_ctr ietf_chacha_ctr
