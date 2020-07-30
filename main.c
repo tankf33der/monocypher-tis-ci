@@ -167,7 +167,7 @@ void x25519(void) {
     ARRAY(shr, 32);
     key[0] = 0;
     crypto_x25519_public_key(pub, key);
-    for(size_t i = 0; i < 64; i++) {
+    for(size_t i = 0; i < 160; i++) {
         crypto_x25519(shr, key, pub);
     }
 }
