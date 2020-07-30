@@ -9,6 +9,8 @@
    (prinl ",")
    (printsp "raw_options" ':)
    (prin "{ ")
+   (printsp "-val-timeout" ': 10800)
+   (prin ", ")
    (printsp "-no-results" ': "true")
    (prinl "} ,")
    (printsp "main" ': (text F))
