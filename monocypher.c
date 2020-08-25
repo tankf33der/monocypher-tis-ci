@@ -458,24 +458,19 @@ void crypto_poly1305_final(crypto_poly1305_ctx *ctx, u8 mac[16])
 
     // check if we should subtract 2^130-5 by performing the
     // corresponding carry propagation.
-    const u64 u0 = (u64)5     + ctx->h[0]; // <= 1_00000004
-    const u64 u1 = (u0 >> 32) + ctx->h[1]; // <= 1_00000000
-    const u64 u2 = (u1 >> 32) + ctx->h[2]; // <= 1_00000000
-    const u64 u3 = (u2 >> 32) + ctx->h[3]; // <= 1_00000000
-    const u64 u4 = (u3 >> 32) + ctx->h[4]; // <=          5
-    // u4 indicates how many times we should subtract 2^130-5 (0 or 1)
-
-    // h + pad, minus 2^130-5 if u4 exceeds 3
-    const u64 uu0 = (u4 >> 2) * 5 + ctx->h[0] + ctx->pad[0]; // <= 2_00000003
-    const u64 uu1 = (uu0 >> 32)   + ctx->h[1] + ctx->pad[1]; // <= 2_00000000
-    const u64 uu2 = (uu1 >> 32)   + ctx->h[2] + ctx->pad[2]; // <= 2_00000000
-    const u64 uu3 = (uu2 >> 32)   + ctx->h[3] + ctx->pad[3]; // <= 2_00000000
-
-    store32_le(mac     , (u32)uu0);
-    store32_le(mac +  4, (u32)uu1);
-    store32_le(mac +  8, (u32)uu2);
-    store32_le(mac + 12, (u32)uu3);
-
+    u64 c = 5;
+    FOR (i, 0, 4) {
+        c  += ctx->h[i];
+        c >>= 32;
+    }
+    c += ctx->h[4];
+    c  = (c >> 2) * 5; // shift the carry back to the beginning
+    // c now indicates how many times we should subtract 2^130-5 (0 or 1)
+    FOR (i, 0, 4) {
+        c += (u64)ctx->h[i] + ctx->pad[i];
+        store32_le(mac + i*4, (u32)c);
+        c = c >> 32;
+    }
     WIPE_CTX(ctx);
 }
 
@@ -560,7 +555,7 @@ static void blake2b_compress(crypto_blake2b_ctx *ctx, int is_last_block)
 #else
     BLAKE2_ROUND(0);  BLAKE2_ROUND(1);  BLAKE2_ROUND(2);  BLAKE2_ROUND(3);
     BLAKE2_ROUND(4);  BLAKE2_ROUND(5);  BLAKE2_ROUND(6);  BLAKE2_ROUND(7);
-    BLAKE2_ROUND(8);  BLAKE2_ROUND(9);  BLAKE2_ROUND(0);  BLAKE2_ROUND(1);
+    BLAKE2_ROUND(8);  BLAKE2_ROUND(9);  BLAKE2_ROUND(10); BLAKE2_ROUND(11);
 #endif
 
     // update hash
@@ -1143,8 +1138,7 @@ static void fe_tobytes(u8 s[32], const fe h)
         q += t[2*i  ]; q >>= 26;
         q += t[2*i+1]; q >>= 25;
     }
-    t[0] += 19 * q;
-    q = 0;
+    q *= 19;  // Shift carry back to the begining
     FOR (i, 0, 5) {
         t[i*2  ] += q;  q = t[i*2  ] >> 26;  t[i*2  ] -= q * ((i32)1 << 26);
         t[i*2+1] += q;  q = t[i*2+1] >> 25;  t[i*2+1] -= q * ((i32)1 << 25);
@@ -1843,7 +1837,7 @@ static int slide_step(slide_ctx *ctx, int width, int i, const u8 scalar[32])
                        | (((lsb & 0xF0) != 0) << 2));
             ctx->next_index  = (i16)(i-(w-1)+s);
             ctx->next_digit  = (i8) (v >> s   );
-            ctx->next_check -= w;
+            ctx->next_check -= (u8) w;
         }
     }
     return i == ctx->next_index ? ctx->next_digit: 0;
