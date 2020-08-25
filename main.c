@@ -62,7 +62,7 @@ void lock_unlock(void) {
 
 void argon(void) {
     ARRAY(hash, 16);
-    ARRAY(wrk,  33384); // 16 * 1024
+    ARRAY(wrk,  16384); // 16 * 1024
     ARRAY(pwd,  16);
     ARRAY(key,  16);
     ARRAY(slt,  16);
