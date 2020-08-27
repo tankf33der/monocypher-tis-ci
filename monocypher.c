@@ -458,19 +458,24 @@ void crypto_poly1305_final(crypto_poly1305_ctx *ctx, u8 mac[16])
 
     // check if we should subtract 2^130-5 by performing the
     // corresponding carry propagation.
-    u64 c = 5;
-    FOR (i, 0, 4) {
-        c  += ctx->h[i];
-        c >>= 32;
-    }
-    c += ctx->h[4];
-    c  = (c >> 2) * 5; // shift the carry back to the beginning
-    // c now indicates how many times we should subtract 2^130-5 (0 or 1)
-    FOR (i, 0, 4) {
-        c += (u64)ctx->h[i] + ctx->pad[i];
-        store32_le(mac + i*4, (u32)c);
-        c = c >> 32;
-    }
+    const u64 u0 = (u64)5     + ctx->h[0]; // <= 1_00000004
+    const u64 u1 = (u0 >> 32) + ctx->h[1]; // <= 1_00000000
+    const u64 u2 = (u1 >> 32) + ctx->h[2]; // <= 1_00000000
+    const u64 u3 = (u2 >> 32) + ctx->h[3]; // <= 1_00000000
+    const u64 u4 = (u3 >> 32) + ctx->h[4]; // <=          5
+    // u4 indicates how many times we should subtract 2^130-5 (0 or 1)
+
+    // h + pad, minus 2^130-5 if u4 exceeds 3
+    const u64 uu0 = (u4 >> 2) * 5 + ctx->h[0] + ctx->pad[0]; // <= 2_00000003
+    const u64 uu1 = (uu0 >> 32)   + ctx->h[1] + ctx->pad[1]; // <= 2_00000000
+    const u64 uu2 = (uu1 >> 32)   + ctx->h[2] + ctx->pad[2]; // <= 2_00000000
+    const u64 uu3 = (uu2 >> 32)   + ctx->h[3] + ctx->pad[3]; // <= 2_00000000
+
+    store32_le(mac     , (u32)uu0);
+    store32_le(mac +  4, (u32)uu1);
+    store32_le(mac +  8, (u32)uu2);
+    store32_le(mac + 12, (u32)uu3);
+
     WIPE_CTX(ctx);
 }
 
@@ -555,7 +560,7 @@ static void blake2b_compress(crypto_blake2b_ctx *ctx, int is_last_block)
 #else
     BLAKE2_ROUND(0);  BLAKE2_ROUND(1);  BLAKE2_ROUND(2);  BLAKE2_ROUND(3);
     BLAKE2_ROUND(4);  BLAKE2_ROUND(5);  BLAKE2_ROUND(6);  BLAKE2_ROUND(7);
-    BLAKE2_ROUND(8);  BLAKE2_ROUND(9);  BLAKE2_ROUND(10); BLAKE2_ROUND(11);
+    BLAKE2_ROUND(8);  BLAKE2_ROUND(9);  BLAKE2_ROUND(0);  BLAKE2_ROUND(1);
 #endif
 
     // update hash
@@ -735,7 +740,7 @@ static void  xor_block(block *o,const block*in){FOR(i,0,128)o->a[i]^= in->a[i];}
 // Doesn't extract more entropy than the base hash function.
 // Mainly used for filling a whole kilobyte block with pseudo-random bytes.
 // (One could use a stream cipher with a seed hash as the key, but
-//  this would introduce another dependency â€”and point of failure.)
+//  this would introduce another dependency ¿and point of failure.)
 static void extended_hash(u8       *digest, u32 digest_size,
                           const u8 *input , u32 input_size)
 {
@@ -1018,16 +1023,15 @@ void crypto_argon2i_general(u8       *hash,      u32 hash_size,
         }
     }
     wipe_block(&tmp);
+    // hash the very last block with H' into the output hash
     u8 final_block[1024];
     store_block(final_block, blocks + (nb_blocks - 1));
+    extended_hash(hash, hash_size, final_block, 1024);
+    WIPE_BUFFER(final_block);
 
     // wipe work area
     volatile u64 *p = (u64*)work_area;
     ZERO(p, 128 * nb_blocks);
-
-    // hash the very last block with H' into the output hash
-    extended_hash(hash, hash_size, final_block, 1024);
-    WIPE_BUFFER(final_block);
 }
 
 void crypto_argon2i(u8   *hash,      u32 hash_size,
@@ -1045,8 +1049,44 @@ void crypto_argon2i(u8   *hash,      u32 hash_size,
 //  Taken from SUPERCOP's ref10 implementation.
 //  A bit bigger than TweetNaCl, over 4 times faster.
 
-// field element
-typedef i32 fe[10];
+#include <assert.h>
+
+// field element  (with a sentinel at f[10])
+typedef i32 fe[11];
+
+static i32 abs_val(i32 a)
+{
+    return a < 0 ? -a : a;
+}
+
+static void check(const fe f)
+{
+    // The sentinel must never exceed 2
+    assert(f[10] >= 0); // that one should be impossible
+    assert(f[10] <= 3);
+
+    // No addition has been performed
+    if (f[10] <= 1) {  // 0 means the same as 1
+        FOR (i, 0, 5) {
+            assert(abs_val(f[i*2  ]) < 1.1 * (1<<25));
+            assert(abs_val(f[i*2+1]) < 1.1 * (1<<24));
+        }
+    }
+    // Adition had been performed
+    if (f[10] == 2) {
+        FOR (i, 0, 5) {
+            assert(abs_val(f[i*2  ]) < 1.1 * (1<<26));
+            assert(abs_val(f[i*2+1]) < 1.1 * (1<<25));
+        }
+    }
+    // Adition had been performed
+    if (f[10] == 3) {
+        FOR (i, 0, 5) {
+            assert(abs_val(f[i*2  ]) < 1.65 * (1<<26));
+            assert(abs_val(f[i*2+1]) < 1.65 * (1<<25));
+        }
+    }
+}
 
 // field constants
 //
@@ -1056,6 +1096,8 @@ typedef i32 fe[10];
 // lop_x, lop_y: low order point in Edwards coordinates
 // ufactor     : -sqrt(-1) * 2
 // A2          : 486662^2  (A squared)
+//
+// The sentinel of a constant is 1 (tight constraints)
 static const fe sqrtm1  = {-32595792, -7943725, 9377950, 3500415, 12389472,
                            -272473, -25146209, -2005654, 326686, 11406482,};
 static const fe d       = {-10913610, 13857413, -15372611, 6949391, 114729,
@@ -1070,31 +1112,72 @@ static const fe ufactor = {-1917299, 15887451, -18755900, -7000830, -24778944,
                            544946, -16816446, 4011309, -653372, 10741468,};
 static const fe A2      = {12721188, 3529, 0, 0, 0, 0, 0, 0, 0, 0,};
 
-static void fe_0(fe h) {           ZERO(h  , 10); }
-static void fe_1(fe h) { h[0] = 1; ZERO(h+1,  9); }
+static void fe_0(fe h) {           ZERO(h  , 10);  h[10] = 0; }
+static void fe_1(fe h) { h[0] = 1; ZERO(h+1,  9);  h[10] = 1; }
 
-static void fe_copy(fe h,const fe f           ){FOR(i,0,10) h[i] =  f[i];      }
-static void fe_neg (fe h,const fe f           ){FOR(i,0,10) h[i] = -f[i];      }
-static void fe_add (fe h,const fe f,const fe g){FOR(i,0,10) h[i] = f[i] + g[i];}
-static void fe_sub (fe h,const fe f,const fe g){FOR(i,0,10) h[i] = f[i] - g[i];}
+static void fe_copy(fe h,const fe f)
+{
+    check(f);
+    FOR(i,0,10) h[i] = f[i];
+    h[10] = f[10];
+    check(h);
+}
+static void fe_neg (fe h,const fe f)
+{
+    check(f);
+    FOR(i,0,10) h[i] = -f[i];
+    h[10] = f[10];
+    check(h);
+}
+static void fe_add (fe h,const fe f,const fe g)
+{
+    check(f);
+    check(g);
+    FOR(i,0,10) h[i] = f[i] + g[i];
+    i32 cf = MAX(1, f[10]);
+    i32 cg = MAX(1, g[10]);
+    h[10] = cf + cg;
+    check(h);
+}
+static void fe_sub (fe h,const fe f,const fe g)
+{
+    check(f);
+    check(g);
+    FOR(i,0,10) h[i] = f[i] - g[i];
+    i32 cf = MAX(1, f[10]);
+    i32 cg = MAX(1, g[10]);
+    h[10] = cf + cg;
+    check(h);
+}
 
 static void fe_cswap(fe f, fe g, int b)
 {
+    check(f);
+    check(g);
     i32 mask = -b; // -1 = 0xffffffff
     FOR (i, 0, 10) {
         i32 x = (f[i] ^ g[i]) & mask;
         f[i] = f[i] ^ x;
         g[i] = g[i] ^ x;
     }
+    i32 c = MAX(f[10], g[10]);
+    f[10] = c;
+    g[10] = c;
+    check(f);
+    check(g);
 }
 
 static void fe_ccopy(fe f, const fe g, int b)
 {
+    check(f);
+    check(g);
     i32 mask = -b; // -1 = 0xffffffff
     FOR (i, 0, 10) {
         i32 x = (f[i] ^ g[i]) & mask;
         f[i] = f[i] ^ x;
     }
+    f[10] = MAX(f[10], g[10]);
+    check(f);
 }
 
 #define FE_CARRY                                                        \
@@ -1127,10 +1210,14 @@ static void fe_frombytes(fe h, const u8 s[32])
     i64 t8 =  load24_le(s + 26) << 4;
     i64 t9 = (load24_le(s + 29) & 0x7fffff) << 2;
     FE_CARRY;
+    h[10] = 1;
+    check(h);
 }
 
 static void fe_tobytes(u8 s[32], const fe h)
 {
+    check(h);
+
     i32 t[10];
     COPY(t, h, 10);
     i32 q = (19 * t[9] + (((i32) 1) << 24)) >> 25;
@@ -1138,7 +1225,8 @@ static void fe_tobytes(u8 s[32], const fe h)
         q += t[2*i  ]; q >>= 26;
         q += t[2*i+1]; q >>= 25;
     }
-    q *= 19;  // Shift carry back to the begining
+    t[0] += 19 * q;
+    q = 0;
     FOR (i, 0, 5) {
         t[i*2  ] += q;  q = t[i*2  ] >> 26;  t[i*2  ] -= q * ((i32)1 << 26);
         t[i*2+1] += q;  q = t[i*2+1] >> 25;  t[i*2+1] -= q * ((i32)1 << 25);
@@ -1159,16 +1247,21 @@ static void fe_tobytes(u8 s[32], const fe h)
 // multiply a field element by a signed 32-bit integer
 static void fe_mul_small(fe h, const fe f, i32 g)
 {
+    check(f);
     i64 t0 = f[0] * (i64) g;  i64 t1 = f[1] * (i64) g;
     i64 t2 = f[2] * (i64) g;  i64 t3 = f[3] * (i64) g;
     i64 t4 = f[4] * (i64) g;  i64 t5 = f[5] * (i64) g;
     i64 t6 = f[6] * (i64) g;  i64 t7 = f[7] * (i64) g;
     i64 t8 = f[8] * (i64) g;  i64 t9 = f[9] * (i64) g;
     FE_CARRY;
+    h[10] = 1;
+    check(h);
 }
 
 static void fe_mul(fe h, const fe f, const fe g)
 {
+    check(f);
+    check(g);
     // Everything is unrolled and put in temporary variables.
     // We could roll the loop, but that would make curve25519 twice as slow.
     i32 f0 = f[0]; i32 f1 = f[1]; i32 f2 = f[2]; i32 f3 = f[3]; i32 f4 = f[4];
@@ -1202,11 +1295,14 @@ static void fe_mul(fe h, const fe f, const fe g)
         +    f5*(i64)g4 + f6*(i64)g3 + f7*(i64)g2 + f8*(i64)g1 + f9*(i64)g0;
 
     FE_CARRY;
+    h[10] = 1;
+    check(h);
 }
 
 // we could use fe_mul() for this, but this is significantly faster
 static void fe_sq(fe h, const fe f)
 {
+    check(f);
     i32 f0 = f[0]; i32 f1 = f[1]; i32 f2 = f[2]; i32 f3 = f[3]; i32 f4 = f[4];
     i32 f5 = f[5]; i32 f6 = f[6]; i32 f7 = f[7]; i32 f8 = f[8]; i32 f9 = f[9];
     i32 f0_2  = f0*2;   i32 f1_2  = f1*2;   i32 f2_2  = f2*2;   i32 f3_2 = f3*2;
@@ -1236,6 +1332,8 @@ static void fe_sq(fe h, const fe f)
         +    f3_2*(i64)f6    + f4  *(i64)f5_2;
 
     FE_CARRY;
+    h[10] = 1;
+    check(h);
 }
 
 // h = 2 * (f^2)
@@ -1837,7 +1935,7 @@ static int slide_step(slide_ctx *ctx, int width, int i, const u8 scalar[32])
                        | (((lsb & 0xF0) != 0) << 2));
             ctx->next_index  = (i16)(i-(w-1)+s);
             ctx->next_digit  = (i8) (v >> s   );
-            ctx->next_check -= (u8) w;
+            ctx->next_check -= w;
         }
     }
     return i == ctx->next_index ? ctx->next_digit: 0;
@@ -2820,3 +2918,4 @@ int crypto_unlock(u8 *plain_text,
     return crypto_unlock_aead(plain_text, key, nonce, mac, 0, 0,
                               cipher_text, text_size);
 }
+
