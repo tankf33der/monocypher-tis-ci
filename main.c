@@ -78,7 +78,7 @@ void sign_check(void) {
     ARRAY(in,   32);
     crypto_sign_public_key(pub, key);
     crypto_sign(hash, key, 0, in, 32);
-    crypto_check(hash, 0, in, 32);
+    crypto_check(hash, pub, in, 32);
 }
 
 void from_eddsa(void) {
@@ -207,7 +207,7 @@ void sign_check_ed25519(void) {
     ARRAY(in,   32);
     crypto_ed25519_public_key(pub, key);
     crypto_ed25519_sign(hash, key, 0, in, 32);
-    crypto_ed25519_check(hash, 0, in, 32);
+    crypto_ed25519_check(hash, pub, in, 32);
 }
 
 int main(void) {
