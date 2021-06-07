@@ -112,8 +112,9 @@ void chacha(void) {
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
-    for(size_t i = 0; i < 64; i++)
-        crypto_chacha20(out, in, i, key, nonce);
+    // for(size_t i = 0; i < 64; i++)
+        // crypto_chacha20(out, in, i, key, nonce);
+    crypto_chacha20(out, 0, 64, key, nonce);
 }
 
 void xchacha(void) {
