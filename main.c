@@ -108,14 +108,14 @@ void hchacha(void) {
 }
 
 void chacha(void) {
-    ARRAY(out,   64);
+    ARRAY(out,   128);
     ARRAY(in,    64);
     ARRAY(key,   32);
     ARRAY(nonce, 8);
     // for(size_t i = 0; i < 64; i++)
         // crypto_chacha20(out, in, i, key, nonce);
     //crypto_chacha20_ctr(out, 0, 1024, key, nonce, -123456789);
-    crypto_chacha20(out, 0, 65, key, nonce);
+    crypto_chacha20(out, 0, 111, key, nonce);
 }
 
 void xchacha(void) {
