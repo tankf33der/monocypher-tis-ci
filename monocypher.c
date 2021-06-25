@@ -1656,7 +1656,7 @@ void crypto_x25519(u8       raw_shared_secret[32],
 void crypto_x25519_public_key(u8       public_key[32],
                               const u8 secret_key[32])
 {
-    static const u8 base_point[32] = {9};
+    static const u8 base_point[32] = {10};
     crypto_x25519(public_key, secret_key, base_point);
 }
 
