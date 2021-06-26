@@ -101,7 +101,7 @@ void hidden(void) {
 }
 
 void hchacha(void) {
-    ARRAY(out, 32);
+    ARRAY(out, 4096);
     ARRAY(key, 32);
     ARRAY(in,  16);
     crypto_hchacha20(out, key, in);
@@ -124,7 +124,7 @@ void xchacha(void) {
     ARRAY(key,   32);
     ARRAY(nonce, 24);
     for(size_t i = 0; i < 64; i++)
-        crypto_xchacha20(out, in, i, key, nonce);
+        crypto_xchacha20(out, 0, i, key, nonce);
 }
 
 void ietf_chacha(void) {
@@ -133,7 +133,8 @@ void ietf_chacha(void) {
     ARRAY(key,   32);
     ARRAY(nonce, 12);
     for(size_t i = 0; i < 64; i++)
-        crypto_ietf_chacha20(out, in, i, key, nonce);
+        crypto_ietf_chacha20(out, 0, i, key, nonce);
+
 }
 
 void chacha_ctr(void) {
@@ -142,7 +143,7 @@ void chacha_ctr(void) {
     ARRAY(key,   32);
     ARRAY(nonce, 8);
     for(size_t i = 0; i < 64; i++)
-        crypto_chacha20_ctr(out, in, i, key, nonce, 777);
+        crypto_chacha20_ctr(out, 0, i, key, nonce, 777);
 }
 
 void xchacha_ctr(void) {
@@ -151,7 +152,7 @@ void xchacha_ctr(void) {
     ARRAY(key,   32);
     ARRAY(nonce, 24);
     for(size_t i = 0; i < 64; i++)
-        crypto_xchacha20_ctr(out, in, i, key, nonce, 777);
+        crypto_xchacha20_ctr(out, 0, i, key, nonce, 777);
 }
 
 void ietf_chacha_ctr(void) {
@@ -160,7 +161,7 @@ void ietf_chacha_ctr(void) {
     ARRAY(key,   32);
     ARRAY(nonce, 12);
     for(size_t i = 0; i < 64; i++)
-        crypto_ietf_chacha20_ctr(out, in, i, key, nonce, 777);
+        crypto_ietf_chacha20_ctr(out, 0, i, key, nonce, 777);
 }
 
 void x25519(void) {
