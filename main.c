@@ -26,7 +26,7 @@ void blake2b(void) {
         // for(size_t k = 0; k < 64; k += 8)
             // for(size_t i = 0; i < 143; i += 8)
                 // crypto_blake2b_general(hash, h, key, k, in, i);
-    crypto_blake2b_general(hash, 64, key, 64, in, 66);
+    crypto_blake2b_general(hash, 0, key, 64, in, 66);
                 
 }
 
