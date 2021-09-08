@@ -22,9 +22,9 @@ void blake2b(void) {
     ARRAY(key,  64);
     ARRAY(in,   66);
 
-    for(size_t h = 1; h < 64; h += 1)
-        for(size_t k = 0; k < 64; k += 1)
-            for(size_t i = 0; i < 66; i += 1)
+    for(size_t h = 0; h < 64; h += 8)
+        for(size_t k = 0; k < 64; k += 8)
+            for(size_t i = 0; i < 143; i += 8)
                 crypto_blake2b_general(hash, h, key, k, in, i);
 }
 
@@ -197,10 +197,11 @@ void sha512(void) {
 
 void hmac(void) {
     ARRAY(hash, 64);
-    ARRAY(key , 64);
-    ARRAY(in  , 64);
-    for(size_t i = 0; i < 64; i++)
-        crypto_hmac_sha512(hash, key, 64, in, i);
+    ARRAY(key , 128);
+    ARRAY(in  , 128);
+    for(size_t i = 0; i < 128; i += 8)
+    	for(size_t k = 0; k < 128; k += 8)
+	        crypto_hmac_sha512(hash, key, k, in, i);
 }
 
 void sign_check_ed25519(void) {
