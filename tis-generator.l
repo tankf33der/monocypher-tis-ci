@@ -30,7 +30,7 @@
    )
    *F
    (quote
-      blake2b hmac
+      blake2b
       # p1305 blake2b verify wipe lock_unlock argon
       # key_exchange
       # sign_check

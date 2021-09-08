@@ -22,10 +22,12 @@ void blake2b(void) {
     ARRAY(key,  64);
     ARRAY(in,   66);
 
-    for(size_t h = 0; h < 64; h += 8)
-        for(size_t k = 0; k < 64; k += 8)
-            for(size_t i = 0; i < 143; i += 8)
-                crypto_blake2b_general(hash, h, key, k, in, i);
+    // for(size_t h = 1; h < 64; h += 8)
+        // for(size_t k = 0; k < 64; k += 8)
+            // for(size_t i = 0; i < 143; i += 8)
+                // crypto_blake2b_general(hash, h, key, k, in, i);
+    crypto_blake2b_general(hash, 64, key, 64, in, 66);
+                
 }
 
 void verify(void) {
