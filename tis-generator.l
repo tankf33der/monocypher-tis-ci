@@ -30,7 +30,7 @@
    )
    *F
    (quote
-      blake2b
+      hidden2
       # p1305 blake2b verify wipe lock_unlock argon
       # key_exchange
       # sign_check
